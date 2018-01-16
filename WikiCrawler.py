@@ -34,9 +34,11 @@ while(check_crawler(link_lst,link_url,target_url)):
     lst = soup.find_all('p')
     try:
         childList = lst[0].findChildren()
-        for child in childList:
 
-        link_url = "https://en.wikipedia.org" + lst[0].findChild('a')['href']
+        # for child in childList:
+        #     print (child)
+        link_url = "https://en.wikipedia.org" + lst[0].find('a')['href']
+        print (link_url)
     except:
         link_url = None
     link_lst.append(link_url)
