@@ -5,7 +5,9 @@ import pprint
 
 
 def check_crawler(links_list, new_link, target_url):
-    if new_link in links_list[:-1]:
+    if len(links_list) == 1 :
+        return True
+    elif new_link in links_list[:-1]:
         print ("Link directed to earlier link in the search history. Aborting")
         return False
     elif len(links_list)>35:
@@ -22,7 +24,7 @@ def check_crawler(links_list, new_link, target_url):
 
 
 target_url = "https://en.wikipedia.org/wiki/Philosophy"
-start_url = "https://en.wikipedia.org/wiki/Animal"
+start_url = "https://en.wikipedia.org/wiki/Rama"
 link_url = start_url
 link_lst = []
 link_lst.append(start_url)
@@ -34,10 +36,10 @@ while(check_crawler(link_lst,link_url,target_url)):
     lst = soup.find_all('p')
     try:
         childList = lst[0].findChildren()
-
         # for child in childList:
         #     print (child)
-        link_url = "https://en.wikipedia.org" + lst[0].find('a')['href']
+        # it has to ensured that only the direct link in the text of body is extracted. Not of others for translations etc
+        link_url = "https://en.wikipedia.org" + soup.select_one('div > p > a')['href']
         print (link_url)
     except:
         link_url = None
