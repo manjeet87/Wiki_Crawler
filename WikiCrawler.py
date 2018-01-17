@@ -3,14 +3,18 @@ from bs4 import BeautifulSoup as bs
 import time
 import pprint
 
+max_steps = 35
+target_url = "https://en.wikipedia.org/wiki/Philosophy"
+start_url = "https://en.wikipedia.org/wiki/Rama"
 
 def check_crawler(links_list, new_link, target_url):
+    global max_steps
     if len(links_list) == 1 :
         return True
     elif new_link in links_list[:-1]:
         print ("Link directed to earlier link in the search history. Aborting")
         return False
-    elif len(links_list)>35:
+    elif len(links_list)>max_steps:
         print ("No. of search trials exceeded limit. Aborting search")
         return  False
     elif new_link == target_url:
@@ -22,15 +26,7 @@ def check_crawler(links_list, new_link, target_url):
     else:
         return True
 
-
-target_url = "https://en.wikipedia.org/wiki/Philosophy"
-start_url = "https://en.wikipedia.org/wiki/Rama"
-link_url = start_url
-link_lst = []
-link_lst.append(start_url)
-itr = 0
-
-while(check_crawler(link_lst,link_url,target_url)):
+def generate_firstLink(link_url):
     response = requests.get(link_url)
     soup = bs(response.content, 'lxml')
     lst = soup.find_all('p')
@@ -39,15 +35,24 @@ while(check_crawler(link_lst,link_url,target_url)):
         # for child in childList:
         #     print (child)
         # it has to ensured that only the direct link in the text of body is extracted. Not of others for translations etc
-        link_url = "https://en.wikipedia.org" + soup.select_one('div > p > a')['href']
-        print (link_url)
+        first_link = "https://en.wikipedia.org" + soup.select_one('div > p > a')['href']
+        print(link_url)
     except:
-        link_url = None
-    link_lst.append(link_url)
+        first_link = None
+    return first_link
+
+link_url = start_url
+articleLink_lst = []
+articleLink_lst.append(start_url)
+itr = 0
+
+while(check_crawler(articleLink_lst,link_url,target_url)):
+    next_url = generate_firstLink(link_url)
+    articleLink_lst.append(link_url)
+    link_url = next_url
     itr +=1
-    print (itr)
     #time.sleep(0.5)
 
-pprint.pprint(link_lst)
+pprint.pprint(articleLink_lst)
 
 
