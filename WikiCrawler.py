@@ -5,7 +5,7 @@ import pprint
 
 max_steps = 35
 target_url = "https://en.wikipedia.org/wiki/Philosophy"
-start_url = "https://en.wikipedia.org/wiki/Rama"
+start_url = "https://en.wikipedia.org/wiki/People"
 
 def check_crawler(links_list, new_link, target_url):
     global max_steps
@@ -35,11 +35,58 @@ def generate_firstLink(link_url):
         # for child in childList:
         #     print (child)
         # it has to ensured that only the direct link in the text of body is extracted. Not of others for translations etc
-        first_link = "https://en.wikipedia.org" + soup.select_one('div > p > a')['href']
-        print(link_url)
+        link_tag = soup.select_one('div > p > a')
+        first_link = "https://en.wikipedia.org" + link_tag['href']
+        print("Link found before Check: ",first_link)
+
+        link_tag = checkBracket(link_tag)
+        first_link = "https://en.wikipedia.org" + link_tag['href']
+        print("Link found After Check: ", first_link)
+
     except:
         first_link = None
+
     return first_link
+
+
+def checkBracket(link_tag):
+    pos = 0
+    link_tagPos = 0
+    Openbracket_pos = 0
+    Closebracket_pos = 0
+    p_tag = link_tag.find_parent('p')
+    child_lst = list(p_tag.children)
+    for child in child_lst:
+        try:
+            if link_tag.string == child.string:
+                link_tagPos = pos
+            if child.string.find('(') != -1:
+                Openbracket_pos = pos
+            if child.string.find(')') != -1:
+                Closebracket_pos = pos
+        except:
+            continue
+
+        pos +=1
+
+    if (Openbracket_pos < link_tagPos) and (Closebracket_pos > link_tagPos):   ## This means that our original link-tag is inside bracket
+
+        pos = Closebracket_pos
+        ## Searching for just nest link_tag outside the brackets, starting from closebracket position
+        while(pos != (len(child_lst)-1)):
+            try:
+                if child_lst[pos].name == 'a':
+                    link_tag = child_lst[pos]
+                    print (link_tag)
+                    break          ## Breaking the loop as the next first link_tag is found
+            except:
+                continue
+            pos +=1
+
+    return link_tag
+
+
+
 
 link_url = start_url
 articleLink_lst = []
@@ -48,11 +95,10 @@ itr = 0
 
 while(check_crawler(articleLink_lst,link_url,target_url)):
     next_url = generate_firstLink(link_url)
-    articleLink_lst.append(link_url)
+    articleLink_lst.append(next_url)
     link_url = next_url
     itr +=1
     #time.sleep(0.5)
 
-pprint.pprint(articleLink_lst)
 
 
