@@ -5,7 +5,7 @@ import pprint
 
 max_steps = 35
 target_url = "https://en.wikipedia.org/wiki/Philosophy"
-start_url = "https://en.wikipedia.org/wiki/People"
+start_url = "https://en.wikipedia.org/wiki/life"
 
 def check_crawler(links_list, new_link, target_url):
     global max_steps
@@ -64,6 +64,7 @@ def checkBracket(link_tag):
                 Openbracket_pos = pos
             if child.string.find(')') != -1:
                 Closebracket_pos = pos
+                break
         except:
             continue
 
@@ -77,7 +78,7 @@ def checkBracket(link_tag):
             try:
                 if child_lst[pos].name == 'a':
                     link_tag = child_lst[pos]
-                    print (link_tag)
+                    #print (link_tag)
                     break          ## Breaking the loop as the next first link_tag is found
             except:
                 continue
